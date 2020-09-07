@@ -64,17 +64,19 @@
 
       }
 
+      $id = $_POST['id'];
+
       $password = password_hash($_POST['password'],PASSWORD_DEFAULT);
 
       $name = $_POST['name'];
 
       $email = $_POST['email'];
 
-      $stmt = $pdo->prepare("SELECT * FROM users WHERE email=:email and id!=:id");
+      $stmt = $pdo->prepare("SELECT * FROM users WHERE email=:email AND id!=:id");
 
       $stmt->bindValue(':email', $email);
 
-      $stmt->bindValue(':id', $_GET['id']);
+      $stmt->bindValue(':id', $id);
 
       $stmt->execute();
       
@@ -88,15 +90,32 @@
 
         if ($password != null) {
 
-          $stmt = $pdo->prepare("UPDATE users SET name='$name',email='$email',password='$password',role='$role' WHERE id='$id'");
-        
-        } else {
+          $stmt = $pdo->prepare("UPDATE users SET name=:name,email=:email,password=:password,role=:role WHERE id=:id");
+          
+          $result = $stmt->execute(
+            array(
+                ':name' => $name,
+                ':password' => $password,
+                ':email' => $email,
+                ':role' => $role,
+                ':id'=>$id
+            )
+        );
 
-          $stmt = $pdo->prepare("UPDATE users SET name='$name',email='$email',role='$role' WHERE id='$id'");
+        }else{
+
+          $stmt = $pdo->prepare("UPDATE users SET name=:name,email=:email,role=:role WHERE id=:id");
         
+          $result = $stmt->execute(
+            array(
+                ':name' => $name,
+                ':email' => $email,
+                ':role' => $role,
+                ':id' => $id
+            )
+        );
+
         }
-
-        $result = $stmt->execute();
 
         if($result){
 
@@ -142,12 +161,12 @@
 
                         <div class="form-group">
                             <label for="">Name</label><p style="color:red"><?php echo empty($nameError)? '' : $nameError; ?></p>
-                            <input type="text" name="name" class="form-control" value="<?php echo $user['name']; ?>">
+                            <input type="text" name="name" class="form-control" value="<?php echo escape($user['name']); ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="">Email</label><p style="color:red"><?php echo empty($emailError)? '' : $emailError; ?></p>
-                            <input type="email" name="email" value="<?php echo $user['email']; ?>" class="form-control">
+                            <input type="email" name="email" value="<?php echo escape($user['email']); ?>" class="form-control">
                         </div>
 
                         <div class="form-group">

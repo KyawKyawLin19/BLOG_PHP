@@ -1,6 +1,7 @@
 <?php
 
     require_once('config/config.php');
+    require_once('config/common.php');
 
     session_start();
 
@@ -88,7 +89,7 @@
             <div class="card card-widget">
               <div class="card-header">
                 <div class="card-title"  style="text-align:center !important;float:none;">
-                  <h4><?php echo $post->title; ?></h4>
+                  <h4><?php echo escape($post->title); ?></h4>
                 </div>
                 <!-- /.user-block -->
               </div>

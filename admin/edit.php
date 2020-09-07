@@ -62,9 +62,16 @@
 
               move_uploaded_file($_FILES['image']['tmp_name'], $file);
 
-              $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content',image='$image' WHERE id='$id'");
+              $stmt = $pdo->prepare("UPDATE posts SET title=:title,content=:content,image=:image WHERE id=:id");
 
-              $result = $stmt->execute();
+              $result = $stmt->execute(
+                array(
+                  ':title' => $title,
+                  ':content' => $content,
+                  ':image' => $image,
+                  'id'=>$id
+              )
+              );
 
               if($result){
 
@@ -77,9 +84,15 @@
 
       } else {
 
-          $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content' WHERE id='$id'");
+          $stmt = $pdo->prepare("UPDATE posts SET title=:title,content=:content WHERE id=:id");
 
-          $result = $stmt->execute();
+          $result = $stmt->execute(
+            array(
+              ':title' => $title,
+              ':content' => $content,
+              'id'=>$id
+          )
+          );
 
           if($result){
 

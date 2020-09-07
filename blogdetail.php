@@ -112,15 +112,15 @@
             <div class="card card-widget">
               <div class="card-header">
                 <div class="card-title"  style="text-align:center !important;float:none;">
-                  <h4><?php echo $post->title; ?></h4>
+                  <h4><?php echo escape($post->title); ?></h4>
                 </div>
                 <!-- /.user-block -->
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <img class="img-fluid pad" src="admin/images/<?php echo $post->image; ?>" alt="Photo">
+                <img class="img-fluid pad" src="admin/images/<?php echo escape($post->image); ?>" alt="Photo">
 
-                <p><?php echo $post->content; ?></p>
+                <p><?php echo escape($post->content); ?></p>
               <a href="/blog" class="btn btn-default" type="button">Back</a><br><br>
               
               <h3>Comments</h3><hr>
@@ -139,10 +139,10 @@
                 <div class="card-comment">
                   <div class="comment-text" style="margin-left:0px !important;">
                     <span class="username">
-                      <?php echo $authorsResult[$key][0]['name']; ?>
-                      <span class="text-muted float-right"><?php echo $value['created_at']?></span>
+                      <?php echo escape($authorsResult[$key][0]['name']); ?>
+                      <span class="text-muted float-right"><?php echo escape($value['created_at'])?></span>
                     </span><!-- /.username -->
-                    <?php echo $value['content']; ?>
+                    <?php echo escape($value['content']); ?>
                   </div>
                   <!-- /.comment-text -->
                 </div>
