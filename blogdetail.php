@@ -4,6 +4,8 @@
 
     require_once('config/config.php');
 
+    require_once('config/common.php');
+
     if(empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
 
         header('Location: login.php');
@@ -45,25 +47,37 @@
 
     if($_POST){
 
-      $comment = $_POST['comment'];
+      if(empty($_POST['comment'])){
 
-      $stmt = $pdo->prepare("INSERT INTO comments(content,author_id,post_id) VALUES (:content,:author_id,:post_id)");
+        if(empty($_POST['comment'])){
+  
+          $commentError = '* Comment cannot be null';
+  
+        }
+        
+      } else {
 
-      $result = $stmt->execute(
-            array(
-              ':content' => $comment, 
-              ':author_id' => $_SESSION['user_id'],
-              ':post_id' => $blogId
-            )
-      );
+          $comment = $_POST['comment'];
 
-      if($result) {
+          $stmt = $pdo->prepare("INSERT INTO comments(content,author_id,post_id) VALUES (:content,:author_id,:post_id)");
 
-        header('Location: blogdetail.php?id='.$blogId);
+          $result = $stmt->execute(
+                array(
+                  ':content' => $comment, 
+                  ':author_id' => $_SESSION['user_id'],
+                  ':post_id' => $blogId
+                )
+          );
 
-      }
+          if($result) {
 
-    }
+            header('Location: blogdetail.php?id='.$blogId);
+
+          }
+
+        }
+
+      } 
 
 ?>
 
@@ -142,6 +156,10 @@
               <!-- /.card-footer -->
               <div class="card-footer">
                 <form action="" method="post">
+
+                  <input type="hidden" name="_token" value="<?php echo $_SESSION['_token'] ?>">
+
+                  <p style="color:red"><p style="color:red"><?php echo empty($commentError)? '' : $commentError; ?></p>
                   <!-- .img-push is used to add margin to elements next to floating images -->
                   <div class="img-push">
                     <input type="text" name="comment" class="form-control form-control-sm" placeholder="Press enter to post comment">

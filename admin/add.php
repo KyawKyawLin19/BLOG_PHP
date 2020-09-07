@@ -3,9 +3,9 @@
 
   session_start();
 
-  require_once('header.php');
-
   require_once('../config/config.php');
+
+  require_once('../config/common.php');
 
   if(empty($_SESSION['user_id'] && $_SESSION['logged_in'])){
 
@@ -19,43 +19,69 @@
 
   }
 
-  if($_POST) {
-    
-    $file = 'images/'.($_FILES['image']['name']);
+  if($_POST) { 
 
-    $imageType = pathinfo($file,PATHINFO_EXTENSION);
+    if(empty($_POST['title']) || empty($_POST['content']) || empty($_FILES['image']['name'])) {
 
-    if($imageType != 'png' && $imageType != 'jpg' && $imageType != 'jpeg' ) {
+      if(empty($_POST['title'])){
 
-      echo "<script>alert('Image must be png,jpg,jpeg');</script>";
+        $titleError = '* Title cannot be null';
+
+      }
+
+      if(empty($_POST['content'])){
+
+        $contentError = '* Content cannot be null';
+
+      }
+
+      if(empty($_FILES['image']['name'])){
+
+        $imageError = '* Image cannot be null';
+
+      }
 
     } else {
 
-      $title = $_POST['title'];
+      $file = 'images/'.($_FILES['image']['name']);
 
-      $content = $_POST['content'];
+      $imageType = pathinfo($file,PATHINFO_EXTENSION);
 
-      $image = $_FILES['image']['name'];
+      if($imageType != 'png' && $imageType != 'jpg' && $imageType != 'jpeg' ) {
 
-      move_uploaded_file($_FILES['image']['tmp_name'], $file);
+        echo "<script>alert('Image must be png,jpg,jpeg');</script>";
 
-      $stmt = $pdo->prepare("INSERT INTO posts(title,content,image,author_id) VALUES (:title,:content,:image,:author_id)");
+      } else {
 
-      $result = $stmt->execute(
+        $title = $_POST['title'];
 
-                  array(':title'=>$title,':content'=>$content,':image'=>$image,':author_id'=>$_SESSION['user_id'])
+        $content = $_POST['content'];
 
-                );
+        $image = $_FILES['image']['name'];
 
-      if($result){
+        move_uploaded_file($_FILES['image']['tmp_name'], $file);
 
-        echo "<script>alert('Successfully added!');window.location.href='index.php';</script>";
+        $stmt = $pdo->prepare("INSERT INTO posts(title,content,image,author_id) VALUES (:title,:content,:image,:author_id)");
+
+        $result = $stmt->execute(
+
+                    array(':title'=>$title,':content'=>$content,':image'=>$image,':author_id'=>$_SESSION['user_id'])
+
+                  );
+
+        if($result){
+
+          echo "<script>alert('Successfully added!');window.location.href='index.php';</script>";
+        
+        }
       
       }
-      
+
     }
 
   }
+
+  require_once('header.php');
  
 ?>
 
@@ -80,19 +106,22 @@
             <div class="card">
                 <div class="card-body">
                     <form action="add.php" class="" method="post" enctype="multipart/form-data">
+                        
+                        <input type="hidden" name="_token" value="<?php echo $_SESSION['_token'] ?>">
+                        
                         <div class="form-group">
-                            <label for="">Title</label>
-                            <input type="text" name="title" class="form-control" required>
+                            <label for="">Title</label><p style="color:red"><?php echo empty($titleError)? '' : $titleError; ?></p>
+                            <input type="text" name="title" class="form-control">
                         </div>
 
                         <div class="form-group">
-                            <label for="">Content</label><br>
+                            <label for="">Content</label><p style="color:red"><?php echo empty($contentError)? '' : $contentError; ?></p>
                             <textarea name="content" id="" cols="80" rows="8"></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="">Image</label>
-                            <input type="file" name="image" required>
+                            <label for="">Image</label><p style="color:red"><?php echo empty($imageError)? '' : $imageError; ?></p>
+                            <input type="file" name="image">
                         </div>
 
                         <div class="from-group">

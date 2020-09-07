@@ -1,9 +1,10 @@
 <?php
 
-
   session_start();
 
   require_once('../config/config.php');
+
+  require_once('../config/common.php');
 
   if(empty($_SESSION['user_id'] && $_SESSION['logged_in'])){
 
@@ -18,49 +19,81 @@
   }
 
   if($_POST){
-    if(!empty($_POST['role'])) {
 
-        $role = 1;
-    
-    }else {
-    
-        $role = 0;
-    
-    }
+    if(empty($_POST['name']) || empty($_POST['email']) || empty($_POST['password']) || strlen($_POST['password']) < 4){
 
-    $email = $_POST['email'];
+      if(empty($_POST['name'])){
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email=:email");
+        $nameError = '* Name cannot be null';
 
-    $stmt->bindValue(':email', $email);
+      }
 
-    $stmt->execute();
-    
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+      if(empty($_POST['email'])){
 
-    if($user){
+        $emailError = '* Email cannot be null';
 
-      echo "<script>alert('Email Duplicated');</script>";
+      }
+
+      if(empty($_POST['password'])){
+
+        $passwordError = '* Password cannot be null';
+
+      }
+
+      if(strlen($_POST['password']) < 4 ){
+
+        $passwordError = '* Password should be 4characters at least';
+
+      }
 
     } else {
 
-      $stmt = $pdo->prepare("INSERT INTO users(name,password,email,role) VALUES(:name,:password,:email,:role)");
+      if(!empty($_POST['role'])) {
+
+        $role = 1;
     
-      $result = $stmt->execute(
-                    array(
-                        ':name' => $_POST['name'],
-                        ':password' => $_POST['password'],
-                        'email' => $_POST['email'],
-                        'role' => $role
-                    )
-                );
-    
-        if($result) {
-         
-            echo "<script>alert('New User Added Successfully');window.location.href='user_list.php';</script>";
-            
-        }
+      } else {
+      
+        $role = 0;
+      
+      }
+
+      $email = $_POST['email'];
+
+      $stmt = $pdo->prepare("SELECT * FROM users WHERE email=:email");
+
+      $stmt->bindValue(':email', $email);
+
+      $stmt->execute();
+      
+      $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if($user){
+
+        echo "<script>alert('Email Duplicated');</script>";
+
+      } else {
+
+        $stmt = $pdo->prepare("INSERT INTO users(name,password,email,role) VALUES(:name,:password,:email,:role)");
+      
+        $result = $stmt->execute(
+                      array(
+                          ':name' => $_POST['name'],
+                          ':password' => password_hash($_POST['password'],PASSWORD_DEFAULT),
+                          'email' => $_POST['email'],
+                          'role' => $role
+                      )
+                  );
+      
+          if($result) {
+          
+              echo "<script>alert('New User Added Successfully');window.location.href='user_list.php';</script>";
+              
+          }
+      }
+      
     }
+
   }
 
   require_once('header.php');
@@ -88,19 +121,22 @@
             <div class="card">
                 <div class="card-body">
                     <form action="user_add.php" class="" method="post" enctype="multipart/form-data">
+                        
+                        <input type="hidden" name="_token" value="<?php echo $_SESSION['_token'] ?>">
+
                         <div class="form-group">
-                            <label for="">Name</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <label for="">Name</label><p style="color:red"><p style="color:red"><?php echo empty($nameError)? '' : $nameError; ?></p>
+                            <input type="text" name="name" class="form-control">
                         </div>
 
                         <div class="form-group">
-                            <label for="">Password</label><br>
-                            <input type="password" name="password" class="form-control" required>
+                            <label for="">Password</label><p style="color:red"><?php echo empty($passwordError)? '' : $passwordError; ?></p>
+                            <input type="password" name="password" class="form-control">
                         </div>
 
                         <div class="form-group">
-                            <label for="">Email</label><br>
-                            <input type="email" name="email" class="form-control" required>
+                            <label for="">Email</label><p style="color:red"><?php echo empty($emailError)? '' : $emailError; ?></p>
+                            <input type="email" name="email" class="form-control">
                         </div>
 
                         <div class="form-group">

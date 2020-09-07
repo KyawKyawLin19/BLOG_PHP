@@ -2,6 +2,8 @@
 
   session_start();
 
+  require_once('../config/config.php');
+  require_once('../config/common.php');
 
   if(empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
 
@@ -32,8 +34,6 @@
   }
 
   require_once('header.php');
-
-  require_once('../config/config.php');
  
 ?>
 
@@ -137,8 +137,8 @@
 
                     <tr>
                       <td><?php echo $i; ?></td>
-                      <td><?php echo $post->title; ?></td>
-                      <td><?php echo substr($post->content,0,50); ?></td>
+                      <td><?php echo escape($post->title); ?></td>
+                      <td><?php echo escape(substr($post->content,0,50)); ?></td>
                       <td>
                         <div class="btn-group">
                           <div class="container">

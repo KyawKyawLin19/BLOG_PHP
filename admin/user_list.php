@@ -4,6 +4,8 @@
 
   require_once('../config/config.php');
 
+  require_once('../config/common.php');
+
   if(empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
 
     header('Location: login.php');
@@ -147,8 +149,8 @@
                     <?php foreach($users as $user){  ?>
                     <tr>
                       <td><?php echo $id; ?></td>
-                      <td><?php echo $user->name ?></td>
-                      <td><?php echo $user->email ?></td>
+                      <td><?php echo escape($user->name) ?></td>
+                      <td><?php echo escape($user->email) ?></td>
                       <td><?php if($user->role){ echo 'admin';} else { echo 'user';} ?></td>
                       <td>
                         <div class="btn-group">

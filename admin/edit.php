@@ -4,6 +4,8 @@
 
   require_once('../config/config.php');
 
+  require_once('../config/common.php');
+
   if(empty($_SESSION['user_id'] && $_SESSION['logged_in'])){
 
     header('Location: login.php');
@@ -18,56 +20,74 @@
 
   if($_POST){
 
-    $id = $_POST['id'];
+    if(empty($_POST['title']) || empty($_POST['content'])) {
 
-    $title = $_POST['title'];
+      if(empty($_POST['title'])){
 
-    $content = $_POST['content'];
+        $titleError = '* Title cannot be null';
 
-    if($_FILES['image']['name'] != null) {
+      }
 
-        $file = 'images/'.($_FILES['image']['name']);
+      if(empty($_POST['content'])){
 
-        $imageType = pathinfo($file,PATHINFO_EXTENSION);
+        $contentError = '* Content cannot be null';
 
-        if($imageType != 'png' && $imageType != 'jpg' && $imageType != 'jpeg' ) {
-
-            echo "<script>alert('Image must be png,jpg,jpeg');</script>";
-
-        } else {
-
-            $title = $_POST['title'];
-
-            $content = $_POST['content'];
-
-            $image = $_FILES['image']['name'];
-
-            move_uploaded_file($_FILES['image']['tmp_name'], $file);
-
-            $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content',image='$image' WHERE id='$id'");
-
-            $result = $stmt->execute();
-
-            if($result){
-
-                echo "<script>alert('Successfully Updated!');window.location.href='index.php';</script>";
-            
-            }
-            
-        }
-
+      }
 
     } else {
 
-        $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content' WHERE id='$id'");
+      $id = $_POST['id'];
 
-        $result = $stmt->execute();
+      $title = $_POST['title'];
 
-        if($result){
+      $content = $_POST['content'];
 
-            echo "<script>alert('Successfully Updated!');window.location.href='index.php';</script>";
-        
-        }
+        if($_FILES['image']['name'] != null) {
+
+          $file = 'images/'.($_FILES['image']['name']);
+
+          $imageType = pathinfo($file,PATHINFO_EXTENSION);
+
+          if($imageType != 'png' && $imageType != 'jpg' && $imageType != 'jpeg' ) {
+
+              echo "<script>alert('Image must be png,jpg,jpeg');</script>";
+
+          } else {
+
+              $title = $_POST['title'];
+
+              $content = $_POST['content'];
+
+              $image = $_FILES['image']['name'];
+
+              move_uploaded_file($_FILES['image']['tmp_name'], $file);
+
+              $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content',image='$image' WHERE id='$id'");
+
+              $result = $stmt->execute();
+
+              if($result){
+
+                  echo "<script>alert('Successfully Updated!');window.location.href='index.php';</script>";
+              
+              }
+              
+          }
+
+
+      } else {
+
+          $stmt = $pdo->prepare("UPDATE posts SET title='$title',content='$content' WHERE id='$id'");
+
+          $result = $stmt->execute();
+
+          if($result){
+
+              echo "<script>alert('Successfully Updated!');window.location.href='index.php';</script>";
+          
+          }
+
+      }
 
     }
 
@@ -101,18 +121,21 @@
             <div class="card">
                 <div class="card-body">
                     <form action="" class="" method="post" enctype="multipart/form-data">
+                        
+                        <input type="hidden" name="_token" value="<?php echo $_SESSION['_token'] ?>">
+                        
                         <div class="form-group">
-                            <input type="hidden" name="id" class="form-control" value="<?php echo $post['id']; ?>" required>
+                            <input type="hidden" name="id" class="form-control" value="<?php echo $post['id']; ?>" >
                         </div>
                         
                         <div class="form-group">
-                            <label for="">Title</label>
-                            <input type="text" name="title" class="form-control" value="<?php echo $post['title']; ?>" required>
+                            <label for="">Title</label><p style="color:red"><?php echo empty($titleError)? '' : $titleError; ?></p><br>
+                            <input type="text" name="title" class="form-control" value="<?php echo escape($post['title']); ?>" >
                         </div>
 
                         <div class="form-group">
-                            <label for="">Content</label><br>
-                            <textarea name="content" id="" cols="80" rows="8"><?php echo $post['content']; ?></textarea>
+                            <label for="">Content</label><br><p style="color:red"><?php echo empty($contentError)? '' : $contentError; ?></p><br>
+                            <textarea name="content" id="" cols="80" rows="8"><?php echo escape($post['content']); ?></textarea>
                         </div>
 
                         <div class="form-group">
